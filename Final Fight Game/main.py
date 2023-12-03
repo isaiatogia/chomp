@@ -1,18 +1,16 @@
-# import modules
 import pygame
 from pygame import mixer
-from Fighter import Fighter
+from fighter import Fighter
 
-# initialize modules
-pygame.init()
 mixer.init()
+pygame.init()
 
 # create game window
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Final Fight Game") # name displayed atop game window
+pygame.display.set_caption("Fight Game Experiment") # name displayed atop game window
 
 # set framerate
 clock = pygame.time.Clock()
@@ -20,50 +18,46 @@ FPS = 60
 
 # define colours
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
+WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # define game variables
 intro_count = 3
 last_count_update = pygame.time.get_ticks()
-score = [0, 0]#player scores. [Knight 1, Knight 2]
+score = [0, 0]# player scores, [Knight 1, Knight 2]
 round_over = False
 ROUND_OVER_COOLDOWN = 2000
 
 # define fighter variables
-K1_SIZE = 120
-K1_SCALE = 2.5
-K1_OFFSET = [60, 60]
-K1_DATA = [K1_SIZE, K1_SCALE, K1_OFFSET]
-K2_SIZE = 120
-K2_SCALE = 2.5
-K2_OFFSET = [60, 60]
-K2_DATA = [K2_SIZE, K2_SCALE, K2_OFFSET]
+K1_SIZE_X = 120
+K1_SIZE_Y = 80
+K1_SCALE = 3.5
+K1_DATA = [K1_SIZE_X, K1_SIZE_Y, K1_SCALE]
+K2_SIZE_X = 120
+K2_SIZE_Y = 80
+K2_SCALE = 3.5
+K2_DATA = [K2_SIZE_X, K2_SIZE_Y, K2_SCALE]
 
-# load music
+# load music and sounds
 pygame.mixer.music.load("../Final Fight Game/assets/audio/music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1, 0.0, 5000)
 sword_fx = pygame.mixer.Sound("../Final Fight Game/assets/audio/sword.wav")
 sword_fx.set_volume(0.5)
 
-# this code will be unused until projectile attacks are added
-magic_fx = pygame.mixer.Sound("../Final Fight Game/assets/audio/magic.wav")
-magic_fx.set_volume(0.75)
-
 # load background image
 bg_image = pygame.image.load("../Final Fight Game/assets/images/background/Forest.png").convert_alpha()
 
 # load fighter spritesheets
-k1_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_1/knight_1_sheet.png").convert_alpha()
-k2_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_2/knight_2_sheet.png").convert_alpha()
+k1_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_1/full_k1_spritesheet.png").convert_alpha()
+k2_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_2/full_k2_spritesheet.png").convert_alpha()
 
 # define number of steps in each animation
-K1_ANIMATION_STEPS = [4, 6, 10, 1, 10, 3, 10]
-K2_ANIMATION_STEPS = [4, 6, 10, 1, 10, 3, 10]
-
-
-# load font
+K1_ANIMATION_STEPS = [4, 6, 6, 10, 10, 4, 1, 4, 3, 1, 8, 2, 10, 10, 3, 1, 10, 3, 2, 12, 10, 2, 4, 1, 1, 3, 7, 7, 1, 3]
+K2_ANIMATION_STEPS = [4, 6, 6, 10, 10, 4, 1, 4, 3, 1, 8, 2, 10, 10, 3, 1, 10, 3, 2, 12, 10, 2, 4, 1, 1, 3, 7, 7, 1, 3]
+# define font
 victory_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 100)
 count_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 80)
 score_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 30)
@@ -85,17 +79,17 @@ def draw_bg():
 # function for drawing fighter health bars
 def draw_health_bar(health, x, y):
     ratio = health / 100
-    pygame.draw.rect(screen, BLACK, (x - 2, y - 2, 404, 34))
+    pygame.draw.rect(screen, WHITE, (x -2, y - 2, 404, 34))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
     pygame.draw.rect(screen, GREEN, (x, y, 400 * ratio, 30))
 
-#create two instances of fighters
-fighter_1 = Fighter(1,200, 385, False, K1_DATA, k1_sheet, K1_ANIMATION_STEPS, sword_fx)
-fighter_2 = Fighter(2,800, 385, True, K2_DATA, k2_sheet, K2_ANIMATION_STEPS, sword_fx)
+# create two instances of fighters
+fighter_1 = Fighter(1,200, 395, False, K1_DATA, k1_sheet, K1_ANIMATION_STEPS, sword_fx)
+fighter_2 = Fighter(2,800, 395, True, K2_DATA, k2_sheet, K2_ANIMATION_STEPS, sword_fx)
 
 # game loop
-run = True
-while run:
+running = True
+while running:
 
     # limit FPS
     clock.tick(FPS)
@@ -103,7 +97,7 @@ while run:
     # draw background
     draw_bg()
 
-    # draw player health, name, and score
+    # show player stats
     draw_health_bar(fighter_1.health, 20, 20)
     draw_health_bar(fighter_2.health, 580, 20)
     draw_text("Knight 1: " + str(score[0]), score_font, RED, 20, 60)
@@ -111,7 +105,7 @@ while run:
 
     # update countdown
     if intro_count <= 0:
-        # move fighters
+        # enable fighter movement after countdown
         fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2, round_over)
         fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1, round_over)
     else:
@@ -136,28 +130,32 @@ while run:
         if fighter_1.alive == False:
             score[1] += 1
             round_over = True
-            screen.blit(victory_2,
-                        (SCREEN_WIDTH / 2 - victory_2.get_width() / 2, SCREEN_HEIGHT / 8 - victory_2.get_height() / 2))
+            screen.blit(victory_2,(SCREEN_WIDTH / 2 - victory_2.get_width() / 2, SCREEN_HEIGHT / 8 - victory_2.get_height() / 2))
             round_over_time = pygame.time.get_ticks()
+
         elif fighter_2.alive == False:
             score[0] += 1
             round_over = True
-            screen.blit(victory_1,
-                        (SCREEN_WIDTH / 2 - victory_1.get_width() / 2, SCREEN_HEIGHT / 8 - victory_1.get_height() / 2))
+            screen.blit(victory_1,(SCREEN_WIDTH / 2 - victory_1.get_width() / 2, SCREEN_HEIGHT / 8 - victory_1.get_height() / 2))
             round_over_time = pygame.time.get_ticks()
+
     else:
         # display victory image
-        # screen.blit(victory_img, (360, 150))
+        if fighter_1.alive == False:
+            screen.blit(victory_2, (230, 150))
+        elif fighter_2.alive == False:
+            screen.blit(victory_1, (230, 150))
         if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
             round_over = False
-            intro_count = 3
-            fighter_1 = Fighter(1, 200, 385, False, K1_DATA, k1_sheet, K1_ANIMATION_STEPS, sword_fx)
-            fighter_2 = Fighter(2, 800, 385, True, K2_DATA, k2_sheet, K2_ANIMATION_STEPS, sword_fx)
+            intro_count = 4
+            fighter_1 = Fighter(1, 200, 395, False, K1_DATA, k1_sheet, K1_ANIMATION_STEPS, sword_fx)
+            fighter_2 = Fighter(2, 800, 395, True, K2_DATA, k2_sheet, K2_ANIMATION_STEPS, sword_fx)
 
     # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            running = False
+
 
     # update display
     pygame.display.update()

@@ -3,12 +3,12 @@ import pygame
 class Fighter():
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound):
         self.player = player
-        self.size = data[0]
-        self.image_scale = data[1]
-        self.offset = data[2]
+        self.sizex = data[0]
+        self.sizey = data[1]
+        self.image_scale = data[2]
         self.flip = flip
         self.animation_list = self.load_images(sprite_sheet, animation_steps)
-        self.action = 0#0:attack1 #1:attack2 #2:death #3:hit #4:idle #5:jump #6:run
+        self.action = 0#0:attack1 #7:attack2 #12:death #15:hit #16:idle #17:jump #20:run
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
@@ -21,9 +21,8 @@ class Fighter():
         self.attack_cooldown = 0
         self.attack_sound = sound
         self.hit = False
-        self.health = 100
+        self.health = 10
         self.alive = True
-
 
     def load_images(self, sprite_sheet, animation_steps):
         #extract images from spritesheet
@@ -31,8 +30,8 @@ class Fighter():
         for y, animation in enumerate(animation_steps):
             temp_img_list = []
             for x in range(animation):
-                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
-                temp_img_list.append( pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
+                temp_img = sprite_sheet.subsurface(x * self.sizex, y * self.sizey, self.sizex, self.sizey)
+                temp_img_list.append( pygame.transform.scale(temp_img, (self.sizex * self.image_scale, self.sizey * self.image_scale)))
             animation_list.append(temp_img_list)
         return animation_list
 
@@ -86,12 +85,12 @@ class Fighter():
                     self.vel_y = -30
                     self.jump = True
                 # attack
-                if key[pygame.K_KP1] or key[pygame.K_KP2]:
+                if key[pygame.K_n] or key[pygame.K_m]:
                     self.attack(target)
                     # determine which attack type was used
-                    if key[pygame.K_KP1]:
+                    if key[pygame.K_n]:
                         self.attack_type = 1
-                    if key[pygame.K_KP2]:
+                    if key[pygame.K_m]:
                         self.attack_type = 2
 
         #apply gravity
@@ -103,10 +102,10 @@ class Fighter():
             dx = -self.rect.left
         if self.rect.right + dx > screen_width:
             dx = screen_width - self.rect.right
-        if self.rect.bottom + dy > screen_height - 35:
+        if self.rect.bottom + dy > screen_height - 25:
             self.vel_y = 0
             self.jump = False
-            dy = screen_height - 35 - self.rect.bottom
+            dy = screen_height  - 25 - self.rect.bottom
 
         #ensure players face each other
         if target.rect.centerx > self.rect.centerx:
@@ -129,20 +128,21 @@ class Fighter():
         if self.health <= 0:
             self.health = 0
             self.alive = False
-            self.update_action(2)#2:death
+            self.update_action(12)#12:death
         elif self.hit == True:
-            self.update_action(3)#3:hit
+            self.update_action(15)#15:hit
         elif self.attacking == True:
             if self.attack_type == 1:
                 self.update_action(0)#0:attack1
             elif self.attack_type == 2:
-                self.update_action(1)#1:attack2
+                self.update_action(7)#7:attack2
         elif self.jump == True:
-            self.update_action(5)#5:jump
+            self.update_action(17)#17:jump
+            #self.update_action(18)#18:fall between jumps
         elif self.running == True:
-            self.update_action(6)#1:run
+            self.update_action(20)#20:run
         else:
-            self.update_action(4)#4:idle
+            self.update_action(16)#16:idle
 
         animation_cooldown = 90 #animation speed, lower = faster, measured in mili sec
         #update image
@@ -159,11 +159,11 @@ class Fighter():
             else:
                 self.frame_index = 0
                 #check if an attack was executed
-                if self.action == 0 or self.action == 1:
+                if self.action == 0 or self.action == 7:
                     self.attacking = False
                     self.attack_cooldown = 20
                 #check if damage was taken
-                if self.action == 3:
+                if self.action == 15:
                     self.hit = False
                     #if the player was in the middle of an attack, then the attack is stopped
                     self.attacking = False
@@ -174,7 +174,7 @@ class Fighter():
             #execute attack
             self.attacking = True
             self.attack_sound.play()
-            attacking_rect = pygame.Rect(self.rect.centerx -(1.5 * self.rect.width * self.flip), self.rect.y, 1.5 * self.rect.width, self.rect.height)
+            attacking_rect = pygame.Rect(self.rect.centerx -(2.2 * self.rect.width * self.flip), self.rect.y, 2.2 * self.rect.width, self.rect.height)
             if attacking_rect.colliderect(target.rect):
                 target.health -= 10
                 target.hit = True
@@ -189,4 +189,4 @@ class Fighter():
 
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+        surface.blit(img, (self.rect.x - (self.sizex/2 * self.image_scale), self.rect.y - (self.sizey/2 * self.image_scale)))
