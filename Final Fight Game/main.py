@@ -43,7 +43,7 @@ K2_DATA = [K2_SIZE_X, K2_SIZE_Y, K2_SCALE]
 # load music and sounds
 pygame.mixer.music.load("../Final Fight Game/assets/audio/music.mp3")
 pygame.mixer.music.set_volume(0.5)
-pygame.mixer.music.play(-1, 0.0, 5000)
+pygame.mixer.music.play(-1 , 0.0, 5000)
 sword_fx = pygame.mixer.Sound("../Final Fight Game/assets/audio/sword.wav")
 sword_fx.set_volume(0.5)
 
