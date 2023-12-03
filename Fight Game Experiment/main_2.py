@@ -46,24 +46,22 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1, 0.0, 5000)
 sword_fx = pygame.mixer.Sound("../Fight Game OG/assets/audio/sword.wav")
 sword_fx.set_volume(0.5)
-magic_fx = pygame.mixer.Sound("../Fight Game OG/assets/audio/magic.wav")
-magic_fx.set_volume(0.75)
 
 
 # load background image
-bg_image = pygame.image.load("../Final Fight Game/assets/images/background/Forest.png").convert_alpha()
+bg_image = pygame.image.load("../Medieval Mayhem/assets/images/background/Forest.png").convert_alpha()
 
 # load fighter spritesheets
-k1_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_1/full_k1_spritesheet.png").convert_alpha()
-k2_sheet = pygame.image.load("../Final Fight Game/assets/images/knight_2/full_k2_spritesheet.png").convert_alpha()
+k1_sheet = pygame.image.load("../Medieval Mayhem/assets/images/knight_1/full_k1_spritesheet.png").convert_alpha()
+k2_sheet = pygame.image.load("../Medieval Mayhem/assets/images/knight_2/full_k2_spritesheet.png").convert_alpha()
 
 # define number of steps in each animation
 K1_ANIMATION_STEPS = [4, 6, 6, 10, 10, 4, 1, 4, 3, 1, 8, 2, 10, 10, 3, 1, 10, 3, 2, 12, 10, 2, 4, 1, 1, 3, 7, 7, 1, 3]
 K2_ANIMATION_STEPS = [4, 6, 6, 10, 10, 4, 1, 4, 3, 1, 8, 2, 10, 10, 3, 1, 10, 3, 2, 12, 10, 2, 4, 1, 1, 3, 7, 7, 1, 3]
 # define font
-victory_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 100)
-count_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 80)
-score_font = pygame.font.Font("../Final Fight Game/assets/fonts/Canterbury.ttf", 30)
+victory_font = pygame.font.Font("../Medieval Mayhem/assets/fonts/Canterbury.ttf", 100)
+count_font = pygame.font.Font("../Medieval Mayhem/assets/fonts/Canterbury.ttf", 80)
+score_font = pygame.font.Font("../Medieval Mayhem/assets/fonts/Canterbury.ttf", 30)
 
 # load victory image
 victory_1 = victory_font.render("Knight 1 Wins", True, (255, 0, 0))
